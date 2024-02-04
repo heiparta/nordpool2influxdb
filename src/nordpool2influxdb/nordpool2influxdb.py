@@ -61,6 +61,8 @@ class AreaPrices(BaseModel):
     class Config:
         allow_extra = True
 
+def _convert_price_to_cents_with_vat24(price: float) -> float:
+    return (1.24 * price * 100) / 1000
 
 async def collect_data(
     nordpool_config: NordpoolConfig,
@@ -75,6 +77,7 @@ async def collect_data(
     area_prices = AreaPrices.parse_obj(data)
     logging.debug(area_prices)
 
+
     # Create json body
     json_body = [
         {
@@ -83,7 +86,7 @@ async def collect_data(
                 "area": area,
             },
             "time": data.start.isoformat(),
-            "fields": {"price": data.value},
+            "fields": {"price": _convert_price_to_cents_with_vat24(data.value)},
         } for area, price_data in area_prices.areas.items() for data in price_data.values
     ]
 
