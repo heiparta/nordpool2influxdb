@@ -27,8 +27,8 @@ class AppArgs(BaseModel):
 
 class InfluxDBConfig(BaseModel):
     host: str
-    port = 8086
-    database = "energy"
+    port: int = 8086
+    database: str = "energy"
     retention_policy: Optional[str]
 
     
@@ -72,7 +72,7 @@ async def collect_data(
 ) -> None:
     # Get data
     client = aiohttp.client.ClientSession()
-    prices = AioPrices(currency=nordpool_config.currency,  client=client)
+    prices = AioPrices(currency=nordpool_config.currency, client=client)
     data = await prices.fetch(resolution=15, areas=nordpool_config.areas)
     area_prices = AreaPrices.parse_obj(data)
     logging.debug(area_prices)
